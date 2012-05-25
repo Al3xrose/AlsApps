@@ -26,5 +26,10 @@ class LowerOrHigherPage(Handler):
 	def get(self):
 		self.render("lowerOrHigher.html")
 
+class DrawingsPage(Handler):
+	def get(self):
+		self.render("drawings.html")
+
 app = webapp2.WSGIApplication([('/', MainPage), 
-							   ('/lowerorhigher', LowerOrHigherPage)], debug=True)
+							   ('/lowerorhigher', LowerOrHigherPage),
+							   ('/drawings', DrawingsPage)], debug=True)
