@@ -1,0 +1,39 @@
+<!doctype HTML>
+
+<html>
+	<head>
+		<title>Al's Blog</title>
+		<link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+	</head>
+
+	<body>
+		<h1>Al's Blog</h1>
+
+		<form method="POST">
+		
+		<p style="font-size:40px">User Login</p>
+		
+		<label>
+		Enter your username:
+		<input type="text" name="username" value={{username}}>
+		</label>
+		<div style="color:red">{{username_error}}</div>
+
+		<br>
+
+		<label>
+
+		Enter your password:
+		<input type="password" name="password">
+		</label>
+		<div style="color:red">{{password_error}}</div>
+
+		<div>
+		<input type="submit">
+		</div>
+		</form>
+		<br>
+		<a href="/blog">Back to main page</a>
+
+	</body>
+</html>

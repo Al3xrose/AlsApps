@@ -1,0 +1,34 @@
+<!doctype HTML>
+
+<html>
+	<head>
+		<title>Al's Blog</title>
+		<link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+	</head>
+
+	<body>
+		<h1>Al's Blog</h1>
+
+		<hr>
+
+		<a href="/blog/newpost">Create new post</a>
+		<br>
+		<a href="/blog/signup">Sign up</a>
+		<br>
+		<a href="/blog/login">Login</a>
+		<br>
+		<a href="/blog/logout">Logout</a>
+
+		{% for blogpost in blogposts %}
+			<div class="blogpost">
+				<div class="blog-title">{{blogpost.title}}</div>
+				<div class="blog-date">{{blogpost.created}}</div>
+				<pre class="blog-body">{{blogpost.content}}</pre>
+			</div>
+		{% endfor%}
+
+		<hr>
+		<a href="/">Back to Al's Apps</a>
+
+	</body>
+</html>

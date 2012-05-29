@@ -1,0 +1,44 @@
+<!doctype HTML>
+
+<html>
+	<head>
+		<title>ASCII CHAN</title>
+		<link type="text/css" rel="stylesheet" href="stylesheets/style.css" />
+	</head>
+
+	<body>
+		<h1>ASCII</h1>
+
+		<form method="post">
+			<label>
+				<div>title</div>
+				<input type="text" name="title" value="{{title}}">
+			</label>
+
+			<label>
+				<div>ASCII</div>
+				<textarea name="art" rows="15" cols="25">{{art}}</textarea>
+			</label>
+			<br>
+			<div class="error">{{error}}</div>
+			<br>
+			<input type="submit">
+		</form>
+
+		{% if img_url %}
+		<img class ="map" src="{{img_url}}">
+		{% endif %}
+
+		<hr>
+
+		{% for art in arts %}
+			<div class="art">
+				<div class="art-title">{{art.title}}</div>
+				<pre class="art-body">{{art.art}}</div>
+		{% endfor%}
+
+
+		<hr>
+		<a href="/">Back to Al's Apps</a>
+	</body>
+</html>
