@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script>
+
+function drawBranches(context, startX, startY, trunkWidth, level){
+    if (level < 12) 
+    {
+        var changeX = 100 / (level + 1);
+        var changeY = 200 / (level + 1);
+        
+        var topRightX = startX + Math.random() * changeX;
+        var topRightY = startY - Math.random() * changeY;
+        
+        var topLeftX = startX - Math.random() * changeX;
+        var topLeftY = startY - Math.random() * changeY;
+        
+// draw right branch
+        context.beginPath();
+        context.moveTo(startX + trunkWidth / 4, startY);
+        context.quadraticCurveTo(startX + trunkWidth / 4, startY 
+- trunkWidth, topRightX, topRightY);
+        context.lineWidth = trunkWidth;
+        context.lineCap = "round";
+        context.stroke();
+        
+        // draw left branch
+        context.beginPath();
+        context.moveTo(startX - trunkWidth / 4, startY);
+        context.quadraticCurveTo(startX - trunkWidth / 4, startY -
+        trunkWidth, topLeftX, topLeftY);
+        context.lineWidth = trunkWidth;
+        context.lineCap = "round";
+        context.stroke();
+        
+        setTimeout(function(){drawBranches(context, topRightX, topRightY, trunkWidth * 0.7, level + 1)}, 100);
+        setTimeout(function(){drawBranches(context, topLeftX, topLeftY, trunkWidth * 0.7, level + 1)}, 100);
+    }
+
+}
+
+
+window.onload = function()
+{
+    var canvas = document.getElementById("myCanvas");
+    var context = canvas.getContext("2d");
+    
+    drawBranches(context, canvas.width / 2, canvas.height, 15, 0);
+
+};
+</script>
+</head>
+<body>
+<canvas id="myCanvas" width="600" height="250" style="border:1px 
+solid black;"></canvas>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

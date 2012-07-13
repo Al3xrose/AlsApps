@@ -6,13 +6,17 @@ import re
 import random
 import hashlib
 import string
+import time
 from handler import Handler
+import json
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile("^.{3,20}$")
 EMAIL_RE = re.compile("^[\S]+@[\S]+\.[\S]+$")
+#LAST_QUERIED_TIME = time.time()
 
 def make_salt():
     return ''.join(random.choice(string.letters) for x in xrange(5))
@@ -27,9 +31,38 @@ def make_pw_hash(name, pw, salt = None):
 def valid_pw(name, pw, h):
     salt = h.split(',')[1]
     return h == make_pw_hash(name, pw, salt)
+    
+def recent_posts(update = False):
+    key = 'top'
+    posts = memcache.get(key)
+    if not posts or update:
+        posts = db.GqlQuery("SELECT * "
+                            "FROM BlogPost "
+                            "ORDER BY created DESC "
+                            "LIMIT 10")
+                            
+        posts = list(posts)
+        memcache.set(key, posts)
+        memcache.set('time', time.time())
+        #global LAST_QUERIED_TIME
+        #LAST_QUERIED_TIME = time.time()
+        
+    return posts
+        
+def get_post(blogpost_id):
+    key = str(blogpost_id)
+    post = memcache.get(key)
+    
+    if not post:
+        post = BlogPost.get_by_id(blogpost_id)
+        memcache.set(key, post)
+        memcache.set(key + 'time', time.time())
+    
+    return post
+        
 
 class BlogPost(db.Model):
-	title = db.StringProperty(required=True)
+	subject = db.StringProperty(required=True)
 	content = db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add = True)
 
@@ -39,33 +72,49 @@ class User(db.Model):
 
 class MainPage(Handler):
     def get(self):
-        blogposts = db.GqlQuery("select * from BlogPost "
-                           "order by created desc")
-        self.render("frontpage.html", blogposts = blogposts)
+        blogposts = recent_posts()
+        last_query_time = memcache.get('time')
+        if last_query_time:
+            seconds = time.time() - float(last_query_time)
+        else:
+            seconds = 0
+        seconds = '%.2f' % seconds
+        self.render("blog.html", blogposts = blogposts, seconds = seconds)
+        self.write_html("<b>LOL</b>")
 
 class NewPostPage(Handler):
     def get(self):
         self.render_front()
 
     def post(self):
-        title = self.request.get("subject")
+        subject = self.request.get("subject")
         content = self.request.get("content")
 
-        if title and content:
-            b = BlogPost(title=title, content=content)
+        if subject and content:
+            b = BlogPost(subject=subject, content=content)
             b.put()
+            recent_posts(update = True)
             self.redirect("/blog/" + str(b.key().id()))
         else:
-            error = "Enter a title and content"
-            self.render_front(title=title, content=content, error=error)
+            error = "Enter a subject and content"
+            self.render_front(subject=subject, content=content, error=error)
 
-    def render_front(self, title="", content="", error=""):
-        self.render("newpost.html", title=title, content=content, error=error)
+    def render_front(self, subject="", content="", error=""):
+        self.render("newpost.html", subject=subject, content=content, error=error)
 
 class BlogEntryPage(Handler):
     def get(self, blogpost_id):
-        blogpost = BlogPost.get_by_id(int(blogpost_id))
-        self.render('blogpost.html', blogpost = blogpost)
+        blogpost = get_post(int(blogpost_id))
+        last_queried_time = memcache.get(blogpost_id + 'time')
+        
+        if last_queried_time:
+            seconds = time.time() - last_queried_time
+        else:
+            seconds = 0
+            
+        seconds = "%.2f" % seconds
+        
+        self.render('blogpost.html', blogpost = blogpost, seconds = seconds)
 
 class SignupPage(Handler):
     def get(self):
@@ -189,13 +238,45 @@ class LogoutPage(Handler):
         self.set_cookie('user_id=; Path=/')
         self.redirect("/blog/signup")
 
+class JsonMainPage(Handler):
+    def get(self):
+        blogposts = db.GqlQuery("select * from BlogPost "
+                        "order by created desc")
+
+        self.response.out.headers['Content-Type'] = 'application/json'
+
+        json_list = []
+
+        for blogpost in blogposts:
+            json_list.append({'subject' : blogpost.subject, 'content' : blogpost.content})
+
+        self.write(json.dumps(json_list))
+
+class JsonEntryPage(Handler):
+    def get(self, blogpost_id):
+
+        blogpost = BlogPost.get_by_id(int(blogpost_id))
+
+        self.response.out.headers['Content-Type'] = 'application/json'
+
+        blogpost_json = {'subject': blogpost.subject, 'content': blogpost.content}
+
+        self.write(json.dumps(blogpost_json))
         
+class FlushPage(Handler):
+    def get(self):
+        memcache.flush_all()
+        self.redirect('/blog')
+
 
 
 app = webapp2.WSGIApplication([('/blog', MainPage),
+                               ('/blog/.json', JsonMainPage),
                                ('/blog/newpost', NewPostPage),
                                ('/blog/signup', SignupPage),
                                ('/blog/(\d+)', BlogEntryPage),
+                               ('/blog/(\d+).json', JsonEntryPage),
                                ('/blog/welcome', WelcomePage), 
                                ('/blog/login', LoginPage),
-                               ('/blog/logout', LogoutPage)], debug=True)
+                               ('/blog/logout', LogoutPage),
+                               ('/blog/flush', FlushPage)], debug=True)

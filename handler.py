@@ -20,3 +20,7 @@ class Handler(webapp2.RequestHandler):
 
     def set_cookie(self, cookie_str):
         self.response.headers.add_header(str('Set-Cookie'), str(cookie_str))
+        
+    def write_html(self, *a, **kw):
+        self.response.headers['Content-Type'] = 'text/html'
+        self.response.out.write(*a, **kw)

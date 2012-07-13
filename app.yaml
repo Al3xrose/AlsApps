@@ -12,16 +12,16 @@ libraries:
   version: latest
 
 handlers:
-- url: /stylesheets/
-  static_dir: stylesheets
-
-- url: /javascript/
-  static_dir: javascript
+- url: /static/
+  static_dir: static
 
 - url: /lowerorhigher
   script: lowerorhigher.app
 
 - url: /drawings
+  script: drawings.app
+  
+- url: /trees
   script: drawings.app
 
 - url: /asciichan
@@ -32,6 +32,12 @@ handlers:
 
 - url: /blog.*
   script: blog.app
+  
+- url: /wiki
+  script: wiki.app
+  
+- url: /wiki.*
+  script: wiki.app
 
 - url: /.*
   script: als-apps.app

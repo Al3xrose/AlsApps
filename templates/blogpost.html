@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<title>Al's Blog</title>
-		<link type="text/css" rel="stylesheet" href="stylesheets/style.css" />
+		<link type="text/css" rel="stylesheet" href="/static/css/style.css" />
 	</head>
 
 	<body>
@@ -11,11 +11,12 @@
 
 		<hr>
 			<div class="blogpost">
-				<div class="blog-title">{{blogpost.title}}</div>
+				<div class="blog-title">{{blogpost.subject}}</div>
 				<div class="blog-date">{{blogpost.created}}</div>
 				<pre class="blog-body">{{blogpost.content}}</pre>
 			</div>
-
+        
+        Queried {{seconds}} seconds ago.
 		<hr>
 
 			<a href="/blog">Back to main page</a>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Guess That Letter</title>
-<script src="javascript/modernizr.js"></script>
-<link type="text/css" rel="stylesheet" href="stylesheets/style.css" />
+<script src="static/js/modernizr.js"></script>
+<link type="text/css" rel="stylesheet" href="/static/css/style.css" />
 <script type="text/javascript">
 window.addEventListener("load", eventWindowLoaded, false);
 function eventWindowLoaded () {
@@ -21,7 +21,7 @@ Debugger.log = function(message) {
 
 function canvasApp(){
 
-   if(!canvasSupport)
+   if(!canvasSupport())
 	return;
 
    var theCanvas = document.getElementById("canvasOne");

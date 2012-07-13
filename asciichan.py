@@ -6,8 +6,10 @@ from handler import Handler
 from xml.dom import minidom
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 IP_URL = "http://api.hostip.info/?ip="
+
 def get_coords(ip):
     url = IP_URL + ip
     content = None
@@ -60,17 +62,16 @@ class AsciiChanPage(Handler):
             #if we have coordinates, add them to the art
             a.put()
 
+            top_arts(update = True)
+            
             self.redirect("/asciichan")
         else:
             error = "we need both a title and ASCII"
             self.render_front(error=error, art=art, title=title)
 
     def render_front(self, error="", art="", title=""):
-        arts = db.GqlQuery("select * from Art "
-                           "order by created desc "
-                           " limit 10")
-
-        arts = list(arts)
+        
+        arts = self.top_arts()
 
         #find which arts have coords
         points = filter(None, (a.coords for a in arts))
@@ -82,5 +83,18 @@ class AsciiChanPage(Handler):
             img_url = gmaps_img(points)
 
         self.render("asciichan.html", error=error, art=art, title=title, arts=arts, img_url = img_url)
+        
+    def top_arts(self, update = False):
+        key = 'top'
+        arts = memcache.get(key)
+        if arts == None or update:
+            arts = db.GqlQuery("select * from Art "
+                           "order by created desc "
+                           "limit 10")
+            arts = list(arts)
+            memcache.set(key, arts)
+        
+        return arts
+        
 
 app = webapp2.WSGIApplication([('/asciichan', AsciiChanPage)], debug=True)

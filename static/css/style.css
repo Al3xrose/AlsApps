@@ -1,0 +1,23 @@
+		body 
+		{
+			font-family: sans-serif;
+			width:800px;
+			margin: 0 auto;
+			padding: 10px;
+		}
+		.error
+		{
+			color:red;
+		}
+		.map
+		{
+			position:absolute;
+			top:150px;
+			right:100px;
+		}
+		.drawing
+		{
+			position:absolute;
+			right:0px;
+			top: 100px;
+		}
